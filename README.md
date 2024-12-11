@@ -1,7 +1,7 @@
 ## SBOM_Analysis_DependencyTrack
 Python script to fetch component info from DependencyTrack API and retrieve their version release dates (for both installed and latest versions).
 
-### Usage: sudo python date_comparison.py
+### Usage: sudo python date_automation.py
 
 (sudo permission is required to run docker containers from via script. Alternatively, you can add your user in the 'docker' group.)
 
