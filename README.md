@@ -7,7 +7,7 @@ Python script to fetch component info from DependencyTrack API and retrieve thei
 
 #### Prerequisites: 
 
-\- Enter the base url of your DependencyTrack instance in the BASE\_URL global variable.
+\- Enter the base url of your DependencyTrack instance in the BASE\_URL global variable.<br>
 \- Update the 'PROJECT\_UUID' global variable with the respective project uuid you want to analyze (Refer your DependencyTrack instance for this).<br>
 \- Create an 'api_key' file to store the API key from DependencyTrack. Now you can run the python script.
 
