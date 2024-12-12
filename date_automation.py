@@ -42,15 +42,27 @@ def get_component_info():
     # Parse and store JSON data in a list of dictionaries for each component  
     component_data = []
     for component in range(number_of_components):
-        component_data.append(
-            {
-                "repositoryType" : combined_data[component]["repositoryMeta"]["repositoryType"],
-                "namespace" : combined_data[component].get("repositoryMeta").get("namespace"), # using get() to suprress KeyError
-                "name" : combined_data[component]["repositoryMeta"]["name"],
-                "version" : combined_data[component]["version"],
-                "latestVersion" : combined_data[component]["repositoryMeta"]["latestVersion"]
-            }
-        )
+        if combined_data[component] and combined_data[component].get("repositoryMeta") and combined_data[component]["repositoryMeta"].get("namespace") is not None:
+            component_data.append(
+                {
+                    "repositoryType" : combined_data[component]["repositoryMeta"]["repositoryType"],
+                    "namespace" : combined_data[component].get("repositoryMeta").get("namespace"), # using get() to suprress KeyError
+                    "name" : combined_data[component]["repositoryMeta"]["name"],
+                    "version" : combined_data[component]["version"],
+                    "latestVersion" : combined_data[component]["repositoryMeta"]["latestVersion"]
+                }
+            )
+        elif combined_data[component].get("repositoryMeta") and combined_data[component].get("repositoryMeta").get("namespace") is None:
+        # handle empty namespaces
+            component_data.append(
+                {
+                    "repositoryType" : combined_data[component]["repositoryMeta"]["repositoryType"],
+                    "namespace" : None,
+                    "name" : combined_data[component]["repositoryMeta"]["name"],
+                    "version" : combined_data[component]["version"],
+                    "latestVersion" : combined_data[component]["repositoryMeta"]["latestVersion"]
+                }
+            )
     print('Data fetched. Please wait while release dates are gathered from repositories...')
     if response.status_code == 401:
         return False
