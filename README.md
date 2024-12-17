@@ -14,4 +14,4 @@ Python script to fetch component info from DependencyTrack API and retrieve thei
 #### Notes:
 
 \- This script will pull the necessary docker images, you can clean them up later if you wish. The corresponding container processes are already cleaned up automatically.<br>
-\- Currently, NPM, Maven, and PyPi are integrated. More repo integrations will follow in the future.
+\- Currently, NPM, Maven, Go Modules, and PyPi are integrated. More repo integrations will follow in the future.
