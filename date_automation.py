@@ -17,6 +17,7 @@ BASE_URL = "https://x.x.x.x"  # DependencyTrack Base URL
 COMPONENT_INFO_URL = BASE_URL + "/api/v1/component/project/" + PROJECT_UUID + "?onlyOutdated=false&onlyDirect=false&searchText=&pageSize=100&pageNumber="
 MAVEN_URL = "https://search.maven.org/solrsearch/select?q=g:{group}%20AND%20a:{artifact}%20AND%20v:{version}&rows=20&wt=json"
 PYPI_URL = "https://pypi.org/pypi/{name}/{version}/json"
+GO_URL = "https://proxy.golang.org/{namespace}/{name}/@v/{version}.info"
 
 # Read API key from file
 file = open("api_key", "r")
@@ -132,6 +133,24 @@ def get_pypi_release_date(namespace, name, version, latestVersion):
         print('Error parsing PyPi data')
 
 
+def get_go_release_date(namespace, name, version, latestVersion):
+    # DependencyTrack fetches from https://proxy.golang.org/
+    try:
+        go_url_version = GO_URL.format(namespace = namespace, name = name, version = version)
+        go_url_latest_version = GO_URL.format(namespace = namespace, name = name, version = latestVersion)
+        # Fetch info for installed version
+        response_v = requests.get(go_url_version, verify=False)
+        json_data_v = response_v.json()
+        release_date_installed_version = json_data_v['Time']
+        # Fetch info for latest version
+        response_lv = requests.get(go_url_latest_version, verify=False)
+        json_data_lv = response_lv.json()
+        release_date_latest_version = json_data_lv['Time']
+        send_to_csv(namespace, name, version, release_date_installed_version, latestVersion, release_date_latest_version)
+    except:
+        print('Error parsing Go Modules data')
+
+
 # TODO:integrate remaining repos here
 
 
@@ -179,8 +198,7 @@ def main():
             #get_cpan_release_date(namespace, name, version, latestVersion)
             pass
         elif repositoryType == 'GO_MODULES':
-            #get_go_release_date(namespace, name, version, latestVersion)
-            pass
+            get_go_release_date(namespace, name, version, latestVersion)
         elif repositoryType == 'HACKAGE':
             #get_hackage_release_date(namespace, name, version, latestVersion)
             pass
