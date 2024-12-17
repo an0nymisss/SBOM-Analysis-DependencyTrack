@@ -19,6 +19,7 @@ MAVEN_URL = "https://search.maven.org/solrsearch/select?q=g:{group}%20AND%20a:{a
 PYPI_URL = "https://pypi.org/pypi/{name}/{version}/json"
 GO_URL = "https://proxy.golang.org/{namespace}/{name}/@v/{version}.info"
 CARGO_URL = "https://crates.io/api/v1/crates/{name}/{version}"
+COMPOSER_URL = "https://packagist.org/packages/{vendor}/{package}.json"
 
 # Read API key from file
 file = open("api_key", "r")
@@ -170,6 +171,21 @@ def get_cargo_release_date(namespace, name, version, latestVersion):
         print('Error parsing Cargo data')
 
 
+def get_composer_release_date(namespace, name, version, latestVersion):
+    # DependencyTrack fetches from Packagist
+    try:
+        composer_url = COMPOSER_URL.format(vendor = namespace, package = name)
+        response = requests.get(composer_url, verify=False)
+        json_data = response.json()
+        if version in json_data['package']['versions']:
+            release_date_installed_version = json_data['package']['versions'][version]['time']
+        if latestVersion in json_data['package']['versions']:
+            release_date_latest_version = json_data['package']['versions'][version]['time']
+        send_to_csv(namespace, name, version, release_date_installed_version, latestVersion, release_date_latest_version)
+    except:
+        print('Error parsing Composer data')
+
+
 # TODO:integrate remaining repos here
 
 
@@ -210,8 +226,7 @@ def main():
         elif repositoryType == 'CARGO':
             get_cargo_release_date(namespace, name, version, latestVersion)
         elif repositoryType == 'COMPOSER':
-            #get_composer_release_date(namespace, name, version, latestVersion)
-            pass
+            get_composer_release_date(namespace, name, version, latestVersion)
         elif repositoryType == 'CPAN':
             #get_cpan_release_date(namespace, name, version, latestVersion)
             pass
