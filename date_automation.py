@@ -18,6 +18,7 @@ COMPONENT_INFO_URL = BASE_URL + "/api/v1/component/project/" + PROJECT_UUID + "?
 MAVEN_URL = "https://search.maven.org/solrsearch/select?q=g:{group}%20AND%20a:{artifact}%20AND%20v:{version}&rows=20&wt=json"
 PYPI_URL = "https://pypi.org/pypi/{name}/{version}/json"
 GO_URL = "https://proxy.golang.org/{namespace}/{name}/@v/{version}.info"
+CARGO_URL = "https://crates.io/api/v1/crates/{name}/{version}"
 
 # Read API key from file
 file = open("api_key", "r")
@@ -151,6 +152,24 @@ def get_go_release_date(namespace, name, version, latestVersion):
         print('Error parsing Go Modules data')
 
 
+def get_cargo_release_date(namespace, name, version, latestVersion):
+    # DependencyTrack fetches from crates.io
+    try:
+        cargo_url_version = CARGO_URL.format(name = name, version = version)
+        cargo_url_latest_version = CARGO_URL.format(name = name, version = latestVersion)
+        # Fetch info for installed version
+        response_v = requests.get(cargo_url_version, verify=False)
+        json_data_v = response_v.json()
+        release_date_installed_version = json_data_v['version']['created_at']
+        # Fetch info for latest version
+        response_lv = requests.get(cargo_url_latest_version, verify=False)
+        json_data_lv = response_lv.json()
+        release_date_latest_version = json_data_lv['version']['created_at']
+        send_to_csv(namespace, name, version, release_date_installed_version, latestVersion, release_date_latest_version)
+    except:
+        print('Error parsing Cargo data')
+
+
 # TODO:integrate remaining repos here
 
 
@@ -189,8 +208,7 @@ def main():
             #get_gem_release_date(namespace, name, version, latestVersion)
             pass
         elif repositoryType == 'CARGO':
-            #get_cargo_release_date(namespace, name, version, latestVersion)
-            pass
+            get_cargo_release_date(namespace, name, version, latestVersion)
         elif repositoryType == 'COMPOSER':
             #get_composer_release_date(namespace, name, version, latestVersion)
             pass
