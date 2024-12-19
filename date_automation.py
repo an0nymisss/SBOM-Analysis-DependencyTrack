@@ -20,6 +20,7 @@ PYPI_URL = "https://pypi.org/pypi/{name}/{version}/json"
 GO_URL = "https://proxy.golang.org/{namespace}/{name}/@v/{version}.info"
 CARGO_URL = "https://crates.io/api/v1/crates/{name}/{version}"
 COMPOSER_URL = "https://packagist.org/packages/{vendor}/{package}.json"
+GEM_URL = "https://rubygems.org/api/v2/rubygems/{name}/versions/{version}.json"
 
 # Read API key from file
 file = open("api_key", "r")
@@ -186,6 +187,23 @@ def get_composer_release_date(namespace, name, version, latestVersion):
         print('Error parsing Composer data')
 
 
+def get_gem_release_date(namespace, name, version, latestVersion):
+    try:
+        gem_url_version = GEM_URL.format(name = name, version = version)
+        gem_url_latest_version = GEM_URL.format(name = name, version = latestVersion)
+        # Fetch info for installed version
+        response_v = requests.get(gem_url_version, verify=False)
+        json_data_v = response_v.json()
+        release_date_installed_version = json_data_v['version_created_at']
+        # Fetch info for latest version
+        response_lv = requests.get(gem_url_latest_version, verify=False)
+        json_data_lv = response_lv.json()
+        release_date_latest_version = json_data_lv['version_created_at']
+        send_to_csv(namespace, name, version, release_date_installed_version, latestVersion, release_date_latest_version)
+    except:
+        print('Error parsing Gem data')
+
+
 # TODO:integrate remaining repos here
 
 
@@ -221,8 +239,7 @@ def main():
             #get_github_release_date(namespace, name, version, latestVersion)
             pass
         elif repositoryType == 'GEM':
-            #get_gem_release_date(namespace, name, version, latestVersion)
-            pass
+            get_gem_release_date(namespace, name, version, latestVersion)
         elif repositoryType == 'CARGO':
             get_cargo_release_date(namespace, name, version, latestVersion)
         elif repositoryType == 'COMPOSER':
@@ -232,12 +249,6 @@ def main():
             pass
         elif repositoryType == 'GO_MODULES':
             get_go_release_date(namespace, name, version, latestVersion)
-        elif repositoryType == 'HACKAGE':
-            #get_hackage_release_date(namespace, name, version, latestVersion)
-            pass
-        elif repositoryType == 'NIXPKGS':
-            #get_nixpkgs_release_date(namespace, name, version, latestVersion)
-            pass
         elif repositoryType == 'PYPI':
             get_pypi_release_date(namespace, name, version, latestVersion)
         elif repositoryType == 'NUGET':
